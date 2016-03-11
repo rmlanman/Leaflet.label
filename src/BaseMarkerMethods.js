@@ -42,7 +42,8 @@ L.BaseMarkerMethods = {
 			anchor = anchor.add(options.offset);
 		}
 
-		options = L.Util.extend({offset: anchor}, options);
+		var defaultOffset = options && (options.direction === 'bottom' || options.direction === 'top') ? [0, 0] : anchor;
+		options = L.Util.extend({offset: defaultOffset}, options);
 
 		this._labelNoHide = options.noHide;
 

@@ -155,6 +155,7 @@ L.Label = (L.Layer ? L.Layer : L.Class).extend({
 			this._prevContent = this._content;
 
 			this._labelWidth = this._container.offsetWidth;
+			this._labelHeight = this._container.offsetHeight;
 		}
 	},
 
@@ -171,6 +172,7 @@ L.Label = (L.Layer ? L.Layer : L.Class).extend({
 			labelPoint = map.layerPointToContainerPoint(pos),
 			direction = this.options.direction,
 			labelWidth = this._labelWidth,
+			labelHeight = this._labelHeight,
 			offset = L.point(this.options.offset);
 
 		// position to the right (right or auto & needs to)
@@ -179,6 +181,19 @@ L.Label = (L.Layer ? L.Layer : L.Class).extend({
 			L.DomUtil.removeClass(container, 'leaflet-label-left');
 
 			pos = pos.add(offset);
+		} else if (direction === 'bottom') {
+			L.DomUtil.removeClass(container, 'leaflet-label-left');
+			L.DomUtil.removeClass(container, 'leaflet-label-right');
+
+			pos = pos.add(L.point(-(labelWidth / 2) + offset.x, offset.y));
+		} else if (direction === 'top') {
+			L.DomUtil.removeClass(container, 'leaflet-label-left');
+			L.DomUtil.removeClass(container, 'leaflet-label-right');
+
+			var y = offset.y + labelHeight;
+			if (this._source._icon && this._source._icon.offsetHeight) { y += this._source._icon.offsetHeight; }
+
+			pos = pos.add(L.point(-(labelWidth / 2) + offset.x, -y));
 		} else { // position to the left
 			L.DomUtil.addClass(container, 'leaflet-label-left');
 			L.DomUtil.removeClass(container, 'leaflet-label-right');
@@ -309,7 +324,8 @@ L.BaseMarkerMethods = {
 			anchor = anchor.add(options.offset);
 		}
 
-		options = L.Util.extend({offset: anchor}, options);
+		var defaultOffset = options && (options.direction === 'bottom' || options.direction === 'top') ? [0, 0] : anchor;
+		options = L.Util.extend({offset: defaultOffset}, options);
 
 		this._labelNoHide = options.noHide;
 
@@ -461,6 +477,11 @@ L.CircleMarker.include(L.BaseMarkerMethods);
 
 L.Path.include({
 	bindLabel: function (content, options) {
+		var defaultOptions = {};
+		if (options && options.direction === 'bottom') { defaultOptions.offset = [0, 10]; }
+		else if (options && options.direction === 'top') { defaultOptions.offset = [0, 2]; }
+		options = L.Util.extend(defaultOptions, options);
+
 		if (!this.label || this.label.options !== options) {
 			this.label = new L.Label(options, this);
 		}

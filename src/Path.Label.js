@@ -1,5 +1,10 @@
 L.Path.include({
 	bindLabel: function (content, options) {
+		var defaultOptions = {};
+		if (options && options.direction === 'bottom') { defaultOptions.offset = [0, 10]; }
+		else if (options && options.direction === 'top') { defaultOptions.offset = [0, 2]; }
+		options = L.Util.extend(defaultOptions, options);
+
 		if (!this.label || this.label.options !== options) {
 			this.label = new L.Label(options, this);
 		}

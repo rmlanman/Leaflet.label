@@ -142,6 +142,7 @@ L.Label = (L.Layer ? L.Layer : L.Class).extend({
 			this._prevContent = this._content;
 
 			this._labelWidth = this._container.offsetWidth;
+			this._labelHeight = this._container.offsetHeight;
 		}
 	},
 
@@ -158,6 +159,7 @@ L.Label = (L.Layer ? L.Layer : L.Class).extend({
 			labelPoint = map.layerPointToContainerPoint(pos),
 			direction = this.options.direction,
 			labelWidth = this._labelWidth,
+			labelHeight = this._labelHeight,
 			offset = L.point(this.options.offset);
 
 		// position to the right (right or auto & needs to)
@@ -166,6 +168,19 @@ L.Label = (L.Layer ? L.Layer : L.Class).extend({
 			L.DomUtil.removeClass(container, 'leaflet-label-left');
 
 			pos = pos.add(offset);
+		} else if (direction === 'bottom') {
+			L.DomUtil.removeClass(container, 'leaflet-label-left');
+			L.DomUtil.removeClass(container, 'leaflet-label-right');
+
+			pos = pos.add(L.point(-(labelWidth / 2) + offset.x, offset.y));
+		} else if (direction === 'top') {
+			L.DomUtil.removeClass(container, 'leaflet-label-left');
+			L.DomUtil.removeClass(container, 'leaflet-label-right');
+
+			var y = offset.y + labelHeight;
+			if (this._source._icon && this._source._icon.offsetHeight) { y += this._source._icon.offsetHeight; }
+
+			pos = pos.add(L.point(-(labelWidth / 2) + offset.x, -y));
 		} else { // position to the left
 			L.DomUtil.addClass(container, 'leaflet-label-left');
 			L.DomUtil.removeClass(container, 'leaflet-label-right');
